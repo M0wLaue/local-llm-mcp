@@ -1,0 +1,10 @@
+# Verhindert, dass lokale Konfigurationsdateien mit Secrets (.env)
+# oder Versionsverwaltungsdaten in das Docker-Image kopiert werden.
+# Quelle: https://docs.docker.com/build/concepts/context/#dockerignore-files
+.env
+.env.*
+.git
+.gitignore
+__pycache__/
+*.pyc
+README.md

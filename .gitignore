@@ -1,0 +1,47 @@
+# ==============================================================================
+# GITIGNORE: SCHUTZ SENSIBLER KONFIGURATIONSDATEN & LOKALER ARTEFAKTE
+# ==============================================================================
+# Warum: Verhindert, dass lokale Umgebungsvariablen mit API-Keys, Passwörtern,
+# internen IP-Adressen oder Laufzeit-Artefakten versehentlich in Git/GitHub
+# versioniert und veröffentlicht werden.
+# Quelle: https://git-scm.com/docs/gitignore
+# ==============================================================================
+
+# 1. Sensible Umgebungs- und Konfigurationsdateien (enthalten u. a. LLM_API_KEY)
+# WICHTIG: Nur `.env.example` (mit Platzhalterwerten) darf ins Repository!
+.env
+.env.*
+!.env.example
+
+# 2. Schlüssel-, Zertifikats- und Secret-Dateien
+*.pem
+*.key
+*.crt
+*secret*
+*credentials*
+
+# 3. Python-Laufzeit- und Build-Artefakte
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 4. IDE-, Editor- und Betriebssystem-Dateien
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 5. Lokale Log- und temporäre Dateien
+*.log
+tmp/
+temp/

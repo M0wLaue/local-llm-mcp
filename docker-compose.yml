@@ -1,0 +1,50 @@
+# ==============================================================================
+# DOCKER COMPOSE KONFIGURATION: LOCAL LLM MCP SERVER
+# ==============================================================================
+# Start der Standard-Instanz (.env):
+#   docker compose up -d --build
+#
+# Start einer weiteren Instanz für einen zweiten LLM-Endpunkt:
+#   docker compose --env-file .env.zweite-instanz up -d
+#
+# Warum `name: ${INSTANCE_NAME:-llm-5090}` auf oberster Ebene:
+#   Durch den dynamischen Compose-Projektnamen auf Basis von `INSTANCE_NAME`
+#   erzeugt jeder Aufruf mit einer eigenen `.env`-Datei einen vollständig
+#   eigenständigen Container-Stack, ohne bestehende Instanzen zu überschreiben.
+#   Quelle: https://docs.docker.com/compose/how-tos/project-name/
+# ==============================================================================
+
+name: ${INSTANCE_NAME:-local-llm}
+
+services:
+  mcp-llm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local-llm-mcp:latest
+    container_name: ${INSTANCE_NAME:-local-llm}
+    restart: unless-stopped
+
+    # Bindet den MCP-Port standardmäßig nur an das lokale Loopback-Interface
+    # (127.0.0.1) des Hosts, damit der Server für Antigravity erreichbar ist,
+    # aber nicht ungewollt im externen Netzwerk exponiert wird.
+    # Quelle: https://docs.docker.com/engine/network/#published-ports
+    ports:
+      - "127.0.0.1:${MCP_PORT:-8090}:8000"
+
+    # Übergabe der konfigurierten Parameter an den Container.
+    # Kostenschutz-Prinzip: Kein automatischer Job- oder Scraper-Anlauf beim Start.
+    environment:
+      INSTANCE_NAME: ${INSTANCE_NAME:-local-llm}
+      LLM_ENDPOINT: ${LLM_ENDPOINT:-http://127.0.0.1:11434/v1}
+      LLM_MODEL: ${LLM_MODEL:-auto}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-180}
+      DOCKER_REWRITE_LOCALHOST: ${DOCKER_REWRITE_LOCALHOST:-true}
+      MCP_INTERNAL_PORT: "8000"
+
+    # Erlaubt dem Container unter Linux und Windows den Zugriff auf Dienste,
+    # die auf dem Host-System unter 127.0.0.1 (z. B. Port 11434) laufen.
+    # Quelle: https://docs.docker.com/reference/compose-file/services/#extra_hosts
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
